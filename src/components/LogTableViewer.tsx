@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Calculation {
   operation: string;
@@ -130,24 +131,24 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
               <h3 className="font-semibold text-gray-800">
                 Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
               </h3>
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <Button
                   onClick={prevStep}
                   disabled={currentStep === 0}
                   variant="outline"
                   size="sm"
-                  className="h-8 w-8 p-0"
+                  className="h-6 w-6 p-0 text-xs"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-3 h-3" />
                 </Button>
                 <Button
                   onClick={nextStep}
                   disabled={currentStep === steps.length - 1}
                   variant="outline"
                   size="sm"
-                  className="h-8 w-8 p-0"
+                  className="h-6 w-6 p-0 text-xs"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3 h-3" />
                 </Button>
               </div>
             </div>
@@ -156,43 +157,45 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
             </p>
           </div>
 
-          {/* Log Table */}
-          <div className="overflow-x-auto">
-            <div className="min-w-full">
-              <table className="w-full border-collapse border border-gray-300 text-xs sm:text-sm">
-                <thead>
-                  <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
-                    <th className="border border-gray-300 p-2 font-semibold">N</th>
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(col => (
-                      <th key={col} className="border border-gray-300 p-2 font-semibold">
-                        .{col}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {logTable.map((row, rowIndex) => (
-                    <tr key={rowIndex} className="hover:bg-gray-50 transition-colors">
-                      <th className="border border-gray-300 p-2 bg-gray-50 font-semibold">
-                        {(1 + rowIndex).toFixed(1).substring(0, 1)}.{rowIndex}
-                      </th>
-                      {row.map((cell, colIndex) => (
-                        <td
-                          key={colIndex}
-                          className={`border border-gray-300 p-2 text-center transition-all duration-300 ${
-                            highlightedCell.row === rowIndex && highlightedCell.col === colIndex
-                              ? 'bg-gradient-to-r from-yellow-200 to-orange-200 font-bold text-orange-800 scale-105 shadow-lg'
-                              : 'hover:bg-blue-50'
-                          }`}
-                        >
-                          {cell.displayValue}
-                        </td>
+          {/* Log Table with ScrollArea */}
+          <div className="bg-white rounded-lg border border-gray-300">
+            <ScrollArea className="h-80 w-full">
+              <div className="min-w-full">
+                <table className="w-full border-collapse border border-gray-300 text-xs bg-white">
+                  <thead className="sticky top-0 bg-white z-10 hidden sm:table-header-group">
+                    <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
+                      <th className="border border-gray-300 p-2 font-semibold">N</th>
+                      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(col => (
+                        <th key={col} className="border border-gray-300 p-2 font-semibold">
+                          .{col}
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {logTable.map((row, rowIndex) => (
+                      <tr key={rowIndex} className="hover:bg-gray-50 transition-colors">
+                        <th className="border border-gray-300 p-2 bg-gray-50 font-semibold">
+                          {(1 + rowIndex).toFixed(1).substring(0, 1)}.{rowIndex}
+                        </th>
+                        {row.map((cell, colIndex) => (
+                          <td
+                            key={colIndex}
+                            className={`border border-gray-300 p-2 text-center transition-all duration-300 ${
+                              highlightedCell.row === rowIndex && highlightedCell.col === colIndex
+                                ? 'bg-gradient-to-r from-yellow-200 to-orange-200 font-bold text-orange-800 scale-105 shadow-lg'
+                                : 'hover:bg-blue-50'
+                            }`}
+                          >
+                            {cell.displayValue}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </ScrollArea>
           </div>
 
           {/* Calculation Info */}
@@ -201,8 +204,12 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
               <h4 className="font-semibold text-blue-800 mb-2">Your Calculation</h4>
               <p className="text-blue-700">
                 {calculation.operation === 'log' 
-                  ? `log₁₀(${calculation.value}) = ${calculation.result.toFixed(4)}`
-                  : `10^${calculation.value} = ${calculation.result.toFixed(4)}`
+                  ? (
+                    <>log<sub>{calculation.base}</sub>({calculation.value}) = {calculation.result.toFixed(4)}</>
+                  )
+                  : (
+                    <>{calculation.base}<sup>{calculation.value}</sup> = {calculation.result.toFixed(4)}</>
+                  )
                 }
               </p>
             </div>
@@ -212,7 +219,7 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
                 <h4 className="font-semibold text-orange-800 mb-2">Closest Table Value</h4>
                 <p className="text-orange-700">
                   Number: {logTable[highlightedCell.row][highlightedCell.col].number}<br/>
-                  log₁₀: {logTable[highlightedCell.row][highlightedCell.col].displayValue}
+                  log<sub>10</sub>: {logTable[highlightedCell.row][highlightedCell.col].displayValue}
                 </p>
               </div>
             )}

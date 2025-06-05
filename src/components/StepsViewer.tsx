@@ -24,6 +24,26 @@ interface StepsViewerProps {
 }
 
 const StepsViewer: React.FC<StepsViewerProps> = ({ calculation, onClose }) => {
+  const formatFormula = (formula: string) => {
+    // Replace patterns like log_10(x) with proper subscript
+    const logPattern = /log_(\d+)\(([^)]+)\)/g;
+    const powerPattern = /(\d+(?:\.\d+)?)\^([^}\s]+)/g;
+    
+    let formatted = formula;
+    
+    // Handle log subscripts
+    formatted = formatted.replace(logPattern, (match, base, value) => {
+      return `log<sub>${base}</sub>(${value})`;
+    });
+    
+    // Handle power superscripts
+    formatted = formatted.replace(powerPattern, (match, base, exp) => {
+      return `${base}<sup>${exp}</sup>`;
+    });
+    
+    return formatted;
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
       <Card className="w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl">
@@ -43,9 +63,13 @@ const StepsViewer: React.FC<StepsViewerProps> = ({ calculation, onClose }) => {
           </div>
           <p className="text-green-100">
             {calculation.operation === 'log' 
-              ? `log₍${calculation.base}₎(${calculation.value})`
-              : `antilog₍${calculation.base}₎(${calculation.value})`
-            } = {calculation.result.toFixed(6)}
+              ? (
+                <>log<sub>{calculation.base}</sub>({calculation.value}) = {calculation.result.toFixed(6)}</>
+              )
+              : (
+                <>{calculation.base}<sup>{calculation.value}</sup> = {calculation.result.toFixed(6)}</>
+              )
+            }
           </p>
         </CardHeader>
         
@@ -65,14 +89,15 @@ const StepsViewer: React.FC<StepsViewerProps> = ({ calculation, onClose }) => {
                   
                   <div className="flex-1 space-y-2">
                     {/* Formula */}
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                      <code className="text-lg font-mono text-gray-800">
-                        {step.formula}
-                      </code>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                      <code 
+                        className="text-base font-mono text-gray-800"
+                        dangerouslySetInnerHTML={{ __html: formatFormula(step.formula) }}
+                      />
                     </div>
                     
                     {/* Explanation */}
-                    <p className="text-gray-600 leading-relaxed">
+                    <p className="text-gray-600 leading-relaxed text-sm">
                       {step.explanation}
                     </p>
                   </div>
