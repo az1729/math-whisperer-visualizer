@@ -104,7 +104,7 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
       <Card className="w-full max-w-6xl max-h-[95vh] overflow-hidden shadow-2xl">
-        <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+        <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl font-bold flex items-center gap-2">
               <Target className="w-6 h-6" />
@@ -124,43 +124,43 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
           </p>
         </CardHeader>
         
-        <CardContent className="p-6 space-y-4">
-          {/* Step Navigation */}
-          <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-800">
-                Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
-              </h3>
-              <div className="flex gap-1">
-                <Button
-                  onClick={prevStep}
-                  disabled={currentStep === 0}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-xs"
-                >
-                  <ChevronLeft className="w-3 h-3" />
-                </Button>
-                <Button
-                  onClick={nextStep}
-                  disabled={currentStep === steps.length - 1}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-xs"
-                >
-                  <ChevronRight className="w-3 h-3" />
-                </Button>
+        <ScrollArea className="flex-1 max-h-[calc(95vh-120px)]">
+          <CardContent className="p-6 space-y-4">
+            {/* Step Navigation */}
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-gray-800">
+                  Step {currentStep + 1} of {steps.length}: {steps[currentStep].title}
+                </h3>
+                <div className="flex gap-1">
+                  <Button
+                    onClick={prevStep}
+                    disabled={currentStep === 0}
+                    variant="outline"
+                    size="sm"
+                    className="h-5 w-5 p-0 text-xs"
+                  >
+                    <ChevronLeft className="w-2 h-2" />
+                  </Button>
+                  <Button
+                    onClick={nextStep}
+                    disabled={currentStep === steps.length - 1}
+                    variant="outline"
+                    size="sm"
+                    className="h-5 w-5 p-0 text-xs"
+                  >
+                    <ChevronRight className="w-2 h-2" />
+                  </Button>
+                </div>
               </div>
+              <p className="text-gray-600">
+                {steps[currentStep].description}
+              </p>
             </div>
-            <p className="text-gray-600">
-              {steps[currentStep].description}
-            </p>
-          </div>
 
-          {/* Log Table with ScrollArea */}
-          <div className="bg-white rounded-lg border border-gray-300">
-            <ScrollArea className="h-80 w-full">
-              <div className="min-w-full">
+            {/* Log Table */}
+            <div className="bg-white rounded-lg border border-gray-300">
+              <div className="h-80 w-full overflow-auto">
                 <table className="w-full border-collapse border border-gray-300 text-xs bg-white">
                   <thead className="sticky top-0 bg-white z-10 hidden sm:table-header-group">
                     <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
@@ -195,36 +195,36 @@ const LogTableViewer: React.FC<LogTableViewerProps> = ({ calculation, onClose })
                   </tbody>
                 </table>
               </div>
-            </ScrollArea>
-          </div>
-
-          {/* Calculation Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-800 mb-2">Your Calculation</h4>
-              <p className="text-blue-700">
-                {calculation.operation === 'log' 
-                  ? (
-                    <>log<sub>{calculation.base}</sub>({calculation.value}) = {calculation.result.toFixed(4)}</>
-                  )
-                  : (
-                    <>{calculation.base}<sup>{calculation.value}</sup> = {calculation.result.toFixed(4)}</>
-                  )
-                }
-              </p>
             </div>
-            
-            {highlightedCell.row >= 0 && (
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 animate-fade-in">
-                <h4 className="font-semibold text-orange-800 mb-2">Closest Table Value</h4>
-                <p className="text-orange-700">
-                  Number: {logTable[highlightedCell.row][highlightedCell.col].number}<br/>
-                  log<sub>10</sub>: {logTable[highlightedCell.row][highlightedCell.col].displayValue}
+
+            {/* Calculation Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 mb-2">Your Calculation</h4>
+                <p className="text-blue-700">
+                  {calculation.operation === 'log' 
+                    ? (
+                      <>log<sub>{calculation.base}</sub>({calculation.value}) = {calculation.result.toFixed(4)}</>
+                    )
+                    : (
+                      <>{calculation.base}<sup>{calculation.value}</sup> = {calculation.result.toFixed(4)}</>
+                    )
+                  }
                 </p>
               </div>
-            )}
-          </div>
-        </CardContent>
+              
+              {highlightedCell.row >= 0 && (
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 animate-fade-in">
+                  <h4 className="font-semibold text-orange-800 mb-2">Closest Table Value</h4>
+                  <p className="text-orange-700">
+                    Number: {logTable[highlightedCell.row][highlightedCell.col].number}<br/>
+                    log<sub>10</sub>: {logTable[highlightedCell.row][highlightedCell.col].displayValue}
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </ScrollArea>
       </Card>
     </div>
   );
